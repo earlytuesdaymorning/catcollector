@@ -95,31 +95,25 @@ templates/main_app/cat_form.html. All CBVs by default will use a folder inside
 of the templates folder with a name the same as the app, in our case main_app.
 """
 
-
 class ToyList(ListView):
     model = Toy
     template_name = 'toys/index.html'
-
 
 class ToyDetail(DetailView):
     model = Toy
     template_name = 'toys/detail.html'
 
-
 class ToyCreate(CreateView):
     model = Toy
     fields = ['name', 'color']
-
 
 class ToyUpdate(UpdateView):
     model = Toy
     fields = ['name', 'color']
 
-
 class ToyDelete(DeleteView):
     model = Toy
     success_url = '/toys/'
-
 
 # This seed data is just here for testing. v
 
