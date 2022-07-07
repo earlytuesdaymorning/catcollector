@@ -61,6 +61,48 @@
         </table>
     </div>
 </div>
+
+<hr />
+<div class="row">
+    <div class="col s6">
+        <h3>{{ cat.name }}'s Toys</h3>
+        {% if cat.toys.count %} {% for toy in cat.toys.all %}
+        <div class="card">
+            <div class="card-content">
+                <span class="card-title">
+                    A <span style="color: {{ toy.color }}">{{ toy.color }}</span> {{ toy.name }}
+                </span>
+            </div>
+        </div>
+        {% endfor %} {% else %}
+        <h5>No Toys :(</h5>
+        {% endif %}
+    </div>
+    <!-- Available toys will come after this line -->
+<div class="col s6">
+    <h3>Available Toys</h3>
+    {% if toys.count %}
+    {% for toy in toys.all %}
+    <div class="card">
+        <div class="card-content">
+            <span class="card-title">
+                A <span style="color: {{ toy.color }}">{{ toy.color }}</span> {{ toy.name }}
+            </span>
+        </div>
+        <div class="card-action">
+            <form action="{% url 'assoc_toy' cat.id toy.id %}" method="post">
+                <!-- cat.id and toy.id need to be in the order they appear in urls -->
+                {% csrf_token %}
+                <button type="submit" class="btn">Add</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <h5>{{cat.name}} Already Has All Toys Available</h5>
+    {% endif %}
+</div>
+
 <!-- script tags will need to be at the BOTTOM!! we cannot use defer in the CDN we
 used since python just does not work that way.
 below is materialize JS. you can look at the documentation to use a lot more

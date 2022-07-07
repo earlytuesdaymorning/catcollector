@@ -12,11 +12,25 @@ MEALS = (
 # letters in the key location represent the words in the value location.
 
 # Create your models here.
+
+# Toys model added
+class Toy(models.Model):
+    name = models.CharField(max_length=50)
+    color = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f'{self.color} {self.name}'
+
+    def get_absolute_url(self):
+        return reverse('detail', kwargs={'pk': self.id})
+
 class Cat(models.Model):
     name = models.CharField(max_length=100)
     breed = models.CharField(max_length=100)
     description = models.TextField(max_length=250)
     age = models.IntegerField()
+    # Add the M:M relationship
+    toys = models.ManyToManyField(Toy)
 
     def __str__(self):
         return self.name

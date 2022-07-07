@@ -5,7 +5,9 @@ from django.views.generic.edit import CreateView # this generic import will allo
 # us to generate a simple create form based on our model.
 from django.views.generic.edit import UpdateView, DeleteView # you can just add them
 # all at once by separating by commas
-from .models import Cat
+from django.views.generic import ListView # added with Toys
+from django.views.generic.detail import DetailView # added with Toys
+from .models import Cat, Toy
 from .forms import FeedingForm
 
 """
@@ -46,10 +48,11 @@ def cats_index(request):
 
 def cats_details(request, cat_id):
     cat = Cat.objects.get(id=cat_id)
+    toys_cat_doesnt_have = Toy.objects.exclude(id__in=cat.toys.all().values_list('id'))
     feeding_form = FeedingForm() # instantiating FeedingForm to be rendered
     return render(request, 'cats/details.html', {
-        'cat': cat, 'feeding_form': feeding_form # including feeding_form along
-        # with the cat model
+        'cat': cat, 'feeding_form': feeding_form, 'toys': toys_cat_doesnt_have
+        # including feeding_form along with the cat model, and adding toys
     })
 
 def add_feeding(request, cat_id):
@@ -61,6 +64,10 @@ def add_feeding(request, cat_id):
         new_feeding = form.save(commit=False)
         new_feeding.cat_id = cat_id
         new_feeding.save()
+    return redirect('details', cat_id=cat_id)
+
+def assoc_toy(request, cat_id, toy_id):
+    Cat.objects.get(id=cat_id).toys.add(toy_id)
     return redirect('details', cat_id=cat_id)
 
 class CatCreate(CreateView):
@@ -87,6 +94,31 @@ By convention, the CatCreate CBV will look to render a template named
 templates/main_app/cat_form.html. All CBVs by default will use a folder inside
 of the templates folder with a name the same as the app, in our case main_app.
 """
+
+
+class ToyList(ListView):
+    model = Toy
+    template_name = 'toys/index.html'
+
+
+class ToyDetail(DetailView):
+    model = Toy
+    template_name = 'toys/detail.html'
+
+
+class ToyCreate(CreateView):
+    model = Toy
+    fields = ['name', 'color']
+
+
+class ToyUpdate(UpdateView):
+    model = Toy
+    fields = ['name', 'color']
+
+
+class ToyDelete(DeleteView):
+    model = Toy
+    success_url = '/toys/'
 
 
 # This seed data is just here for testing. v
