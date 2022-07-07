@@ -1,0 +1,15 @@
+<!-- we do not need a full boiler for this page, because we have the base.html
+and are going to be using template inheritance. we need to create an extend
+for python to search for the template it will be using here.
+we then need to wrap any specific new content we are adding with a block
+so instead of creating a full HTML page, we only need to write what is new to
+this page. -->
+
+{% extends 'base.html'%} {% block content %}
+
+    <h1>ฅ/ᐠ｡‸｡ᐟ\ฅ∫</h1>
+    <hr />
+
+{% endblock %}
+
+<!-- make sure to indent properly, as it will break python -->

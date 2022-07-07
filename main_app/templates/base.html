@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cat Collector</title>
+    
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link
+        rel="stylesheet"
+        type="text/css"
+        href="{% static 'css/styles.css' %}"
+    />
+<!-- load above static at top of code -->
+</head>
+
+<body>
+    <header class="navbar-fixed">
+        <nav>
+            <ul>
+                <li>
+                    <a href="/" class="left brand-logo">&nbsp;&nbsp;CatCollector</a>
+                </li>
+            </ul>
+            <ul class="right">
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'cats_create' %}">Add a Cat</a></li>
+                <li><a href="{% url 'index' %}">View All My Cats</a></li>
+            </ul>
+        </nav>
+    </header>
+    <!-- below is where we "inject" our contenct. it is a placeholder -->
+    <main class="container">{% block content %} {% endblock %}</main>
+    <!-- Whenever another template extends this base.html, that other template's
+        "block content" will replace the same block in base.html. -->
+    <footer class="page-footer">
+        <div class="right">
+            All Rights Reserved, &copy 2022 Cat Collector &nbsp;
+        </div>
+    </footer>
+</body>
+
+</html>

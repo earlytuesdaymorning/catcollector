@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Cat List</h1>
+<hr />
+
+{% for cat in cats %}
+<div class="card">
+    <!-- <a href="/cats/{{ cat.id }}" - this is a hardcoded example -->
+    <a href="{% url 'details' cat.id %}"> <!-- this will call the url "name", and
+    insert the associated path-->
+        <div class="card-content">
+            <span class="card-title">{{ cat.name }}</span>
+            <p>Breed: {{ cat.breed }}</p>
+            <p>Description: {{ cat.description }}</p>
+            {% if cat.age > 0 %}
+            <p>Age: {{ cat.age }}</p>
+            {% else %}
+            <p>Age: Kitten</p>
+            {% endif %}
+        </div>
+    </a>
+</div>
+{% endfor %} {% endblock %}

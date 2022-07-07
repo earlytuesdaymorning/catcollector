@@ -1,0 +1,31 @@
+{% extends 'base.html' %} {% block content %}
+{% if object %}
+<h1>Edit <span class="teal-text">{{ object.name}}</span></h1>
+{% else %}
+<h1>Add Cat</h1>
+{% endif %}
+<!-- leave form action empty, it makes the form post to the same url -->
+<form action="" method="post">
+    {% csrf_token %} <!-- this is required by django for security purposes -->
+    <table>
+        <!-- this will render inputs inside of <tr>s and <td>s -->
+        {{ form.as_table }}
+    </table>
+    <input type="submit" value="Submit!" class="btn" />
+</form>
+{% endblock %}
+
+<!-- The {% csrf_token %} is a security measure that makes it difficult to perform
+a cross-site-request-forgery by writing a CSRF (pronounced "see-surf") token
+that is validated on the server. 
+
+Use Devtools to explore the DOM. You'll see how Django's ModelForm wrote the
+inputs in table rows and columns because we used {{ form.as_table }}.
+Other options include:
+
+{{ form }}- No wrapper around the <label> & <input> tags
+{{ form.as_p }}- Wraps a <p> tag around the <label> & <input> tags
+{{ form.as_ul }}- Wraps an <li> tag around the <label> & <input> tags
+
+Note: To ease custom styling, you can add an id or class to your <table> vand/or
+<form> tags. Also note how Django automatically assigns an id to each input.-->

@@ -1,0 +1,29 @@
+/* this CSS file NEEDS to be structured this way in order to allow python
+to easily find it. static/css/styles.css. you can technically rename this static
+folder if you go into your main project settings.py under STATIC FILES, but
+it is NOT recommended. it just declares what folder within apps to look for static
+files in, so no reason to change it.
+
+make sure that you LOAD the static into the view you want to use this
+
+also CTRL + f5 to refresh AND clear cache and show updates to the static files*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    padding-top: 0;
+    text-align: right;
+}
