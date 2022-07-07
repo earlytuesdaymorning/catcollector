@@ -79,6 +79,15 @@ class Feeding(models.Model):
         ordering = ['-date'] # in this case, to change the default sorting, so most
         # recent date first
 
+class Photo(models.Model):
+    url = models.CharField(max_length=200)
+    cat = models.ForeignKey(Cat, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Photo for cat_id: {self.cat_id} @{self.url}"
+# If a Model "belongs to" another Model, it must have a foreign key. If there's more
+#  than one "belongs to" relationship - that means more than one foreign key.
+
 
 # REMEMBER TO makemigrations AND migrate ANY TIME WE ADD TO/CHANGE OUR MODELS
 # python manage.py showmigrations to see what you are migrating

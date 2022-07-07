@@ -35,6 +35,7 @@ urlpatterns = [
     # associate a toy with a cat (M:M)
     path('cats/<int:cat_id>/assoc_toy/<int:toy_id>/', views.assoc_toy, name='assoc_toy'),
     path('cats/<int:cat_id>/assoc_toy/<int:toy_id>/delete/', views.assoc_toy_delete, name='assoc_toy_delete'),
+    path('cats/<int:cat_id>/add_photo/', views.add_photo, name='add_photo'),
 ]
 # toys paths added with model
 """

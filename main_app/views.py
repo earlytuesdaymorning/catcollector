@@ -1,5 +1,6 @@
 # Add the following import
 # from django.http import HttpResponse # this is for testing the routes
+from nis import cat
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView # this generic import will allow
 # us to generate a simple create form based on our model.
@@ -7,8 +8,13 @@ from django.views.generic.edit import UpdateView, DeleteView # you can just add 
 # all at once by separating by commas
 from django.views.generic import ListView # added with Toys
 from django.views.generic.detail import DetailView # added with Toys
-from .models import Cat, Toy
+from .models import Cat, Toy, Photo
 from .forms import FeedingForm
+import uuid  # a python utility that will help us generate random strings
+import boto3 # this is the AWS boto3 library
+
+S3_BASE_URL = 'https://s3-us-west-1.amazonaws.com/'
+BUCKET = 'tuesdayscatcollector'
 
 """
 note: to DRY our code, we are including a base.html.
@@ -72,6 +78,46 @@ def assoc_toy(request, cat_id, toy_id):
 
 def assoc_toy_delete(request, cat_id, toy_id):
     Cat.objects.get(id=cat_id).toys.remove(toy_id)
+    return redirect('details', cat_id=cat_id)
+
+def add_photo(request, cat_id):
+    # attempting to collect the photo file data
+    # photo-file will be the "name" attribute on the <input type="file">
+    photo_file = request.FILES.get('photo-file', None)
+
+    # conditional logic to determine if file is present...
+    if photo_file:
+        # ...if it IS then we will create a reference to the boto3 client
+        s3 = boto3.client('s3')
+        # we'll then need a unique "key" for S3, and an image file extension too
+        key = uuid.uuid4().hex[:6] + photo_file.name[photo_file.name.rfind('.'):]
+            # what uuid.uuid4() does is create a long, unique string of characters
+            # .hex with slice operator [:6] will shorten that unique string to only
+            # be 6 characters long.
+            # then + the file type that is being uploaded... we are taking the photo
+            # file's name[then rfinding the '.': <- and then slicing it right there]
+            # basically this will replace 'file_name.png' with 'bd504f.png'
+
+        # if the IF above is successful...
+        try:
+            # ...upload that photo file to aws s3. any time we upload to s3 it will
+            # give us a predictable URL in exchange.
+            s3.upload_fileobj(photo_file, BUCKET, key)
+            # we will take the exchanged url and save it to the database, URLs
+            # exchanged with aws s3 will always be laid out this way
+            url = f"{S3_BASE_URL}{BUCKET}/{key}"
+                # reminder that we defined S3_BASE_URL and BUCKET at the top and key
+                # within this def's if statement
+            # this will create a photo instance with the photo model we have and
+            # provide the cat_id as as a foreign key value
+            photo = Photo(url=url, cat_id=cat_id)
+            # save the photo instance
+            photo.save()
+        # if the IF above is not successful...
+        except Exception as error:
+            # print an error message along with what caused it as defined above
+            print('An error occurred uploading file to S3:', error)
+    # finally we will redirect to the details page
     return redirect('details', cat_id=cat_id)
 
 class CatCreate(CreateView):

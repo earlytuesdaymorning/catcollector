@@ -25,6 +25,24 @@
                 are always separated using a space character, not a comma. -->
             </div>
         </div>
+        {% for photo in cat.photo_set.all %}
+            <img class="responsive-img card-panel" src="{{photo.url}}">
+        {% empty %}
+            <div class="card-panel teal-text center-align">No Photos Uploaded</div>
+        {% endfor %}
+
+        <form
+            action="{% url 'add_photo' cat.id %}"
+            enctype="multipart/form-data" 
+            method="POST"
+            class="card-panel"
+        > <!-- you need enctype in order to POST any file types from someone's
+        computer. form will not understand how to read that data without this-->
+            {% csrf_token %}
+            <input type="file" name="photo-file" />
+            <br /><br />
+            <input type="submit" class="btn" value="Upload Photo" />
+        </form>
     </div>
     <div class="col s6">
         <form action="{% url 'add_feeding' cat.id %}" method="post">
