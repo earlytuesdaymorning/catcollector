@@ -70,6 +70,10 @@ def assoc_toy(request, cat_id, toy_id):
     Cat.objects.get(id=cat_id).toys.add(toy_id)
     return redirect('details', cat_id=cat_id)
 
+def assoc_toy_delete(request, cat_id, toy_id):
+    Cat.objects.get(id=cat_id).toys.remove(toy_id)
+    return redirect('details', cat_id=cat_id)
+
 class CatCreate(CreateView):
     model = Cat
     # fields = '__all__' -now with toys being added, we are going to change __all__
