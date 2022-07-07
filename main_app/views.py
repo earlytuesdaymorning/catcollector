@@ -72,7 +72,9 @@ def assoc_toy(request, cat_id, toy_id):
 
 class CatCreate(CreateView):
     model = Cat
-    fields = '__all__'
+    # fields = '__all__' -now with toys being added, we are going to change __all__
+    # because we no longer want ALL the fields showing up when we add a new cat
+    fields = ['name', 'breed', 'description', 'age']
 
 class CatUpdate(UpdateView):
     model = Cat
