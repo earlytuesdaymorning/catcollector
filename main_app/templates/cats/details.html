@@ -19,10 +19,30 @@
             <div class="card-action">
                 <a href="{% url 'cat_update' cat.id %}">Edit</a>
                 <a href="{% url 'cat_delete' cat.id %}">Delete</a>
+                <!-- If the URL requires values for named parameters
+                such as <int:cat_id>, the url template tag accepts them after
+                the name of the route. Note that arguments provided to template tags
+                are always separated using a space character, not a comma. -->
             </div>
         </div>
     </div>
     <div class="col s6">
+        <form action="{% url 'add_feeding' cat.id %}" method="post">
+            {% csrf_token %} {{ feeding_form.as_p }}
+            <input type="submit" class="btn" value="Add Feeding" />
+            <!-- we need to add materialize's JS library in base.html to make
+            this work -->
+        </form>
+        <br />
+        {% if cat.fed_for_today %}
+        <div class="card-panel teal-text center-align">
+            {{cat.name}} has been fed all their meals for today!
+        </div>
+        {% else %}
+        <div class="card-panel red-text center-align">
+            I bet {{cat.name}} is just STARVING! ฅ/ᐠ｡ⱉ｡ᐟ \
+        </div>
+        {% endif %}
         <table class="striped">
             <thead>
                 <tr>
@@ -41,4 +61,25 @@
         </table>
     </div>
 </div>
+<!-- script tags will need to be at the BOTTOM!! we cannot use defer in the CDN we
+used since python just does not work that way.
+below is materialize JS. you can look at the documentation to use a lot more
+different things it has available. it generates automatically styled and functional
+elements like date picker calendars and drop down selects -->
+<script>
+    var dateEl = document.getElementById('id_date');
+    M.Datepicker.init(dateEl, {
+        format: 'yyyy-mm-dd',
+        defaultDate: new Date(),
+        setDefaultDate: true,
+        autoClose: true
+    });
+
+    var selectEl = document.getElementById('id_meal');
+    M.FormSelect.init(selectEl);
+</script>
+
 {% endblock %}
+
+<!-- we need to create a custom ModelForm, similar to the other CBVs we used for
+the edit and delete routes. we are creating a forms.py file and making it there -->

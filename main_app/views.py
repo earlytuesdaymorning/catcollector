@@ -1,11 +1,12 @@
 # Add the following import
 # from django.http import HttpResponse # this is for testing the routes
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView # this generic import will allow
 # us to generate a simple create form based on our model.
 from django.views.generic.edit import UpdateView, DeleteView # you can just add them
 # all at once by separating by commas
 from .models import Cat
+from .forms import FeedingForm
 
 """
 note: to DRY our code, we are including a base.html.
@@ -45,7 +46,22 @@ def cats_index(request):
 
 def cats_details(request, cat_id):
     cat = Cat.objects.get(id=cat_id)
-    return render(request, 'cats/details.html', { 'cat': cat })
+    feeding_form = FeedingForm() # instantiating FeedingForm to be rendered
+    return render(request, 'cats/details.html', {
+        'cat': cat, 'feeding_form': feeding_form # including feeding_form along
+        # with the cat model
+    })
+
+def add_feeding(request, cat_id):
+    # create the ModelForm using the data in request.POST
+    form = FeedingForm(request.POST)
+    # validate the form
+    if form.is_valid():
+        # don't save the form to the db until it has the cat_id assigned
+        new_feeding = form.save(commit=False)
+        new_feeding.cat_id = cat_id
+        new_feeding.save()
+    return redirect('details', cat_id=cat_id)
 
 class CatCreate(CreateView):
     model = Cat

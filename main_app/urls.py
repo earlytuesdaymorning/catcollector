@@ -25,6 +25,7 @@ urlpatterns = [
     # find a named parameter of pk. This is why we didn't use cat_id as we did in
     # the detail entry. in short, its just how django works. remember to add the
     # views and the html
+    path('cats/<int:cat_id>/add_feeding/', views.add_feeding, name='add_feeding'),
 ]
 
 """

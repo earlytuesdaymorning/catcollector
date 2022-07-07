@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse # import reverse to allow redirection in create route
+from datetime import date
 
 MEALS = (
     ('B', 'Breakfast'),
@@ -22,6 +23,12 @@ class Cat(models.Model):
     
     def get_absolute_url(self):
         return reverse('details', kwargs={'cat_id': self.id})
+    
+    def fed_for_today(self):
+        return self.feeding_set.filter(date=date.today()).count() >= len(MEALS)
+    # The fed_for_today method demonstrates the use of filter() to obtain a
+    # <QuerySet> for today's feedings, then count() is chained on to the query
+    # to return the actual number of objects returned.
 """
 The reverse function builds a path string. The above will return the correct
 path for the details named route. However, since that route requires a cat_id
@@ -52,9 +59,11 @@ class Feeding(models.Model):
     # Check out the convenient get_meal_display() method Django autoMAGICally
     # creates from the "meal" field. this gives access to the value of a
     # Field.choice. it is created when we make the choices= argument.
-
     # Since a Feeding belongs to a Cat, it must hold the id of the cat object it
     # belongs to! so we also added a foreign key.
+    class Meta: # we can add meta attributes to our models also
+        ordering = ['-date'] # in this case, to change the default sorting, so most
+        # recent date first
 
 
 # REMEMBER TO makemigrations AND migrate ANY TIME WE ADD TO/CHANGE OUR MODELS
