@@ -171,7 +171,9 @@ def signup(request):
     return render(request, 'registration/signup.html', context)
     # ^ and render an empty form
 
-class CatCreate(CreateView):
+# we are going to MIX in the mixin here before our imported view, restricting access
+# to a user only
+class CatCreate(LoginRequiredMixin, CreateView):
     model = Cat
     # fields = '__all__' -now with toys being added, we are going to change __all__
     # because we no longer want ALL the fields showing up when we add a new cat
@@ -184,8 +186,6 @@ class CatCreate(CreateView):
         return super().form_valid(form) # after that, this line lets CreateView do
         # its normal job
 
-# we are going to MIX in the mixin here before our imported view, restricting access
-# to a user only
 class CatUpdate(LoginRequiredMixin, UpdateView):
     model = Cat
     # Let's disallow the renaming of a cat and their breed by excluding those fields!
