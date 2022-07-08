@@ -1,0 +1,28 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Please Login</h1>
+<hr />
+
+<form action="{% url 'login' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn" type="submit" value="Login" />
+    <input type="hidden" name="next" value="{{ next }}" />
+</form>
+<!-- the hidden input is really cool. It is a feature of Django's authentication
+    that will automatically redirect a user that tries to access a protected route
+    back to that route after they log in! Using hidden inputs in forms is a
+    common technique in web apps for providing additional data to the server when
+    the form is submitted.
+    
+    the next hidden input specifically adds the REFERER to the URL. meaning that
+    if someone tries to access a page when they are restricted access, it will do
+    the default django action of redirecting to the login page, but it will also
+    let the browser know what page they tried to access before logging in! so it will
+    then automatically apply that to the url and redirect to the page they tried to
+    get to before logging in
+
+also, by default, the login view redirects to /accounts/profile, but we can change
+this in settings.py-->
+
+{% endblock %}

@@ -1,5 +1,7 @@
 # Add the following import
 # from django.http import HttpResponse # this is for testing the routes
+from distutils.log import error
+from multiprocessing import context
 from nis import cat
 from django.shortcuts import render, redirect
 from django.views.generic.edit import CreateView # this generic import will allow
@@ -8,6 +10,18 @@ from django.views.generic.edit import UpdateView, DeleteView # you can just add 
 # all at once by separating by commas
 from django.views.generic import ListView # added with Toys
 from django.views.generic.detail import DetailView # added with Toys
+from django.contrib.auth import login # lines 13/16 ARE included with djgango auth.
+# login also creates a session store that's stored in the database, and a session
+# cookie that's sent to the browser.
+from django.contrib.auth.forms import UserCreationForm # even though there is no
+# user creation view or url, which makes it easier to customize, it does give you
+# a default user creation form to work with
+from django.contrib.auth.decorators import login_required # this will make it so when
+# we decorate a view with it, you will not be allowed to see the page unless they are
+# logged in
+from django.contrib.auth.mixins import LoginRequiredMixin # this will import the
+# mixin that we will used to authorize/restrict the CLASS-based views, and which is
+# implemented with multiple inheritance
 from .models import Cat, Toy, Photo
 from .forms import FeedingForm
 import uuid  # a python utility that will help us generate random strings
@@ -45,13 +59,21 @@ this time, we will structure it similarly to static, in that we will be creating
 a FOLDER called cats first, then then within that we have our template.
 """
 
+@login_required # we'll need to place the decorator above the view we want to restrict
 def cats_index(request):
-    cats = Cat.objects.all()
+    # This reads ALL cats, not just the logged in user's cats. this CAN be useful
+    # if we want to have a space for everyone to show their contributions.
+    # cats = Cat.objects.all()
+    cats = Cat.objects.filter(user=request.user)
+    # this^ will filter and dsiplay the requesting user's cats only, or this v
+    # cats = request.user.cat_set.all() , which displays all the cats set to the
+    # current user.
     return render(request, 'cats/index.html', { 'cats': cats })
 
 # we are going to be using seed data for testing. but the key vaule here references
 # the cats that will be in our index, connecting to the DB
 
+@login_required
 def cats_details(request, cat_id):
     cat = Cat.objects.get(id=cat_id)
     toys_cat_doesnt_have = Toy.objects.exclude(id__in=cat.toys.all().values_list('id'))
@@ -61,6 +83,7 @@ def cats_details(request, cat_id):
         # including feeding_form along with the cat model, and adding toys
     })
 
+@login_required
 def add_feeding(request, cat_id):
     # create the ModelForm using the data in request.POST
     form = FeedingForm(request.POST)
@@ -72,14 +95,17 @@ def add_feeding(request, cat_id):
         new_feeding.save()
     return redirect('details', cat_id=cat_id)
 
+@login_required
 def assoc_toy(request, cat_id, toy_id):
     Cat.objects.get(id=cat_id).toys.add(toy_id)
     return redirect('details', cat_id=cat_id)
 
+@login_required
 def assoc_toy_delete(request, cat_id, toy_id):
     Cat.objects.get(id=cat_id).toys.remove(toy_id)
     return redirect('details', cat_id=cat_id)
 
+@login_required
 def add_photo(request, cat_id):
     # attempting to collect the photo file data
     # photo-file will be the "name" attribute on the <input type="file">
@@ -120,18 +146,52 @@ def add_photo(request, cat_id):
     # finally we will redirect to the details page
     return redirect('details', cat_id=cat_id)
 
+def signup(request):
+    error_message = ''
+    # IF the request is POST == we need to create a new user, because a form was
+    # just submitted. it's implied here that if its not POST, it is GET. and if its
+    # GET that means the user just clicked the signup link. doing this just
+    # consolidated the signup view function into one, rather than making separate
+    # views for get and for post
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST) # this defines form as a function that
+        # will create a 'user' from the post request on the submitted form instance
+        if form.is_valid():
+        # if ^ form is valid, then v it will save the new user to our database...
+            user = form.save()
+            login(request, user) # ...then it will log the new user in...
+            return redirect('index') # ...and take them to the cat index, by url name
+        else:
+            error_message = 'Invalid sign up - try again'
+    # this v is where it assumes a GET request (implied else) or a bad POST request
+    form = UserCreationForm()
+    context = {'form': form, 'error_message': error_message} # save an error message
+    # creating a nested variable called context and passing it below allows us to
+    # break our code up a bit and make it easier to look at.
+    return render(request, 'registration/signup.html', context)
+    # ^ and render an empty form
+
 class CatCreate(CreateView):
     model = Cat
     # fields = '__all__' -now with toys being added, we are going to change __all__
     # because we no longer want ALL the fields showing up when we add a new cat
     fields = ['name', 'breed', 'description', 'age']
 
-class CatUpdate(UpdateView):
+    # The inherited method below is called when a valid cat form is being submitted
+    def form_valid(self, form):
+        form.instance.user = self.request.user # this assigns the cat to the user
+        # that is currently logged in when the cat is created
+        return super().form_valid(form) # after that, this line lets CreateView do
+        # its normal job
+
+# we are going to MIX in the mixin here before our imported view, restricting access
+# to a user only
+class CatUpdate(LoginRequiredMixin, UpdateView):
     model = Cat
     # Let's disallow the renaming of a cat and their breed by excluding those fields!
     fields = ['description', 'age']
 
-class CatDelete(DeleteView):
+class CatDelete(LoginRequiredMixin, DeleteView):
     model = Cat
     success_url = '/cats/'
 
@@ -147,23 +207,23 @@ templates/main_app/cat_form.html. All CBVs by default will use a folder inside
 of the templates folder with a name the same as the app, in our case main_app.
 """
 
-class ToyList(ListView):
+class ToyList(LoginRequiredMixin, ListView):
     model = Toy
     template_name = 'toys/index.html'
 
-class ToyDetail(DetailView):
+class ToyDetail(LoginRequiredMixin, DetailView):
     model = Toy
     template_name = 'toys/detail.html'
 
-class ToyCreate(CreateView):
+class ToyCreate(LoginRequiredMixin, CreateView):
     model = Toy
     fields = ['name', 'color']
 
-class ToyUpdate(UpdateView):
+class ToyUpdate(LoginRequiredMixin, UpdateView):
     model = Toy
     fields = ['name', 'color']
 
-class ToyDelete(DeleteView):
+class ToyDelete(LoginRequiredMixin, DeleteView):
     model = Toy
     success_url = '/toys/'
 

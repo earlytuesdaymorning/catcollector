@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse # import reverse to allow redirection in create route
 from datetime import date
+from django.contrib.auth.models import User # this is how we are going to bring in
+# the User model from the authorization that is preinstalled by Django
 
 MEALS = (
     ('B', 'Breakfast'),
@@ -31,7 +33,12 @@ class Cat(models.Model):
     age = models.IntegerField()
     # Add the M:M relationship
     toys = models.ManyToManyField(Toy)
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE) # here making a cat
+    # belong to a certain user. reminder that models.CASCADE makes it so that an
+    # instance of Cat will be deleted if it belongs to a User that is deleted. and
+    # again, many cats --> belong to one user, so Cat will require a FK for User
+# this line above^ is all we need here to apply authorization now -> to the master
+# catcollector/urls.py
     def __str__(self):
         return self.name
     

@@ -32,13 +32,16 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'main_app',
-    'django.contrib.admin',
+    'django.contrib.admin', # preinstalled authorization!! AWESOME!!
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+# Django relies on server-side sessions, implemented by the...
+# 'django.contrib.sessions'app, to track when a user is logged in or out.
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -117,6 +120,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Add this variable below to specify where successful logins should redirect to
+LOGIN_REDIRECT_URL = '/cats/'
+# make sure the forward slash is there, or else this will just append to the
+# existing LOGIN_REDIRECT url variable that is included in django, which is
+# 'accounts/profile' 
+LOGOUT_REDIRECT_URL = '/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

@@ -5,7 +5,7 @@
 <h1>Add Cat</h1>
 {% endif %}
 <!-- leave form action empty, it makes the form post to the same url -->
-<form action="" method="post">
+<form action="" method="POST">
     {% csrf_token %} <!-- this is required by django for security purposes -->
     <table>
         <!-- this will render inputs inside of <tr>s and <td>s -->

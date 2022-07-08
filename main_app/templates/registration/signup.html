@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block content %}
+
+<h1>Sign Up</h1>
+<hr />
+
+{% if error_message %}
+<p class="red-text">{{ error_message }}</p>
+{% endif %}
+
+<form action="{% url 'signup' %}" method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input class="btn" type="submit" value="Sign Up" />
+</form>
+
+<!-- By using the the UserCreationForm, you get help messages that go with all of
+the validations. However, the form does not include inputs for the user's email,
+first_name, or last_name. To include these, you'll have to create your own
+ModelForm based upon the UserModel.
+If you want to remove some or all of the password validations, you can comment
+them out or remove them from the AUTH_PASSWORD_VALIDATORS list in settings.py.
+OR check them out in the dev tools to find out their class names and select to 
+either change the text or change the styling/display-->
+
+{% endblock %}
